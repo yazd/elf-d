@@ -1,0 +1,8 @@
+{
+	"name": "elf-d",
+	"description": "A library to introspect elf binaries",
+	"copyright": "Copyright © 2014, Yazan Dabain",
+	"authors": ["Yazan Dabain"],
+	"dependencies": {
+	}
+}
