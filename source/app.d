@@ -1,32 +1,31 @@
 import std.stdio;
-import elf.elf;
 import std.string;
+import elf;
 
 void main() {
   import std.file: thisExePath;
   auto file = thisExePath();
 
-  ELF elf = new ELF(file);
-  writeln(elf.fileClass);
-  writeln(elf.dataEncoding);
-  writeln(elf.abiVersion);
-  writeln(elf.osABI);
-  writeln(elf.objectFileType);
-  writefln("0x%x", elf.entryPoint);
-  writeln(elf.programHeaderOffset);
-  writeln(elf.sectionHeaderOffset);
-  writeln(elf.sizeOfProgramHeaderEntry);
-  writeln(elf.numberOfProgramHeaderEntries);
-  writeln(elf.sizeOfSectionHeaderEntry);
-  writeln(elf.numberOfSectionHeaderEntries);
+  ELF elf = ELF.fromFile(file);
+  writeln(elf.header.identifier.fileClass);
+  writeln(elf.header.identifier.dataEncoding);
+  writeln(elf.header.identifier.abiVersion);
+  writeln(elf.header.identifier.osABI);
+  writeln(elf.header.objectFileType);
+  writefln("0x%x", elf.header.entryPoint);
+  writeln(elf.header.programHeaderOffset);
+  writeln(elf.header.sectionHeaderOffset);
+  writeln(elf.header.sizeOfProgramHeaderEntry);
+  writeln(elf.header.numberOfProgramHeaderEntries);
+  writeln(elf.header.sizeOfSectionHeaderEntry);
+  writeln(elf.header.numberOfSectionHeaderEntries);
 
   writeln();
 
-  writefln("%(%s\n%)", elf.sections.getSymbolStringTable().strings);
+  writefln("%-(%s\n%)", elf.getSymbolsStringTable().strings);
 
-  foreach (i; 0 .. elf.numberOfSectionHeaderEntries) {
-    Section section = elf.sections[i];
-    writeln("Section ", i, " (", section.name, ")");
+  foreach (section; elf.sections) {
+    writeln("Section (", section.name, ")");
     writefln("  type: %s", section.type);
     writefln("  address: 0x%x", section.address);
     writefln("  offset: 0x%x", section.offset);
@@ -35,6 +34,7 @@ void main() {
     writefln("  entry size: %s bytes", section.entrySize);
     writeln();
   }
+
 }
 
 string printValue(T)(auto ref T source) if (is(T == struct)) {

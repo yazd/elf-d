@@ -1,36 +1,16 @@
 module elf.low;
 
-package:
+import elf.low32, elf.low64;
+import elf.meta;
 
-alias ELF32_Addr = uint;
-alias ELF64_Addr = ulong;
+import std.conv : to;
 
-alias ELF32_Off = uint;
-alias ELF64_Off = ulong;
-
-alias ELF64_Half = ushort;
-alias ELF64_Word = uint;
-alias ELF64_SWord = int;
-alias ELF64_XWord = ulong;
-alias ELF64_SXword = long;
-
-align(1) struct ELFHeader64 {
-align(1):
-  ELFIdent ident;
-  ELF64_Half type;
-  ELF64_Half machine;
-  ELF64_Word version_;
-  ELF64_Addr entry;
-  ELF64_Off phoff;
-  ELF64_Off shoff;
-  ELF64_Word flags;
-  ELF64_Half ehsize;
-  ELF64_Half phentsize;
-  ELF64_Half phnum;
-  ELF64_Half shentsize;
-  ELF64_Half shnum;
-  ELF64_Half shstrndx;
-}
+alias ELF_Half = ELF64_Half;
+alias ELF_Word = ELF64_Word;
+alias ELF_SWord = ELF64_SWord;
+alias ELF_XWord = ELF64_XWord;
+alias ELF_Addr = ELF64_Addr;
+alias ELF_Off = ELF64_Off;
 
 align(1) struct ELFIdent {
 align(1):
@@ -49,26 +29,74 @@ align(1):
 
 static assert(ELFIdent.sizeof == 16);
 
-align(1) struct ELFSection {
-align(1):
-  ELF64_Word name;
-  ELF64_Word type;
-  ELF64_XWord flags;
-  ELF64_Addr address;
-  ELF64_Off offset;
-  ELF64_XWord size;
-  ELF64_Word link;
-  ELF64_Word info;
-  ELF64_XWord addralign;
-  ELF64_XWord entsize;
+struct Identifier {
+	ELFIdent data;
+
+	FileClass fileClass() {
+	  return data.class_.to!FileClass;
+	}
+
+	DataEncoding dataEncoding() {
+	  return data.data.to!DataEncoding;
+	}
+
+	OSABI osABI() {
+	  return data.osabi.to!OSABI;
+	}
+
+	ubyte abiVersion() {
+	  return data.abiversion;
+	}
 }
 
-align(1) struct ELFSymbol64 {
-align(1):
-  ELF64_Word name;
-  ubyte info;
-  ubyte other;
-  ELF64_Half shndx;
-  ELF64_Addr value;
-  ELF64_XWord size;
+enum FileClass {
+  class32 = 1, class64 = 2,
+}
+
+enum DataEncoding {
+  littleEndian = 1, bigEndian = 2,
+}
+
+enum OSABI {
+  sysv = 0, hpux = 1, standalone = 255,
+}
+
+enum ObjectFileType : ELF_Half {
+  none = 0,
+  relocatable = 1,
+  executable = 2,
+  shared_ = 3,
+  core = 4,
+  lowOS = 0xFE00,
+  highOS = 0xFEFF,
+  lowProccessor = 0xFF00,
+  highProcessor = 0xFFFF,
+}
+
+enum SectionType : ELF_Word {
+  null_ = 0,
+  programBits = 1,
+  symbolTable = 2,
+  stringTable = 3,
+  rela = 4,
+  symbolHashTable = 5,
+  dynamicLinkingTable = 6,
+  note = 7,
+  noBits = 8,
+  rel = 9,
+  shlib = 10,
+  dynamicLoaderSymbolTable = 11,
+  lowOS = 0x6000_0000,
+  highOS = 0x6FFF_FFFF,
+  lowProcessor = 0x7000_0000,
+  highProcessor = 0x7FFF_FFFF,
+}
+
+// TODO: Review this
+enum SectionFlag : ELF64_XWord {
+  write = 0x1,
+  alloc = 0x2,
+  executable = 0x4,
+  maskOS = 0x0F00_0000,
+  maskProcessor = 0xF000_0000,
 }
