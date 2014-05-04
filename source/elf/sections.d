@@ -10,57 +10,57 @@ import std.conv : to;
 import elf;
 
 struct StringTable {
-  private ELFSection m_section;
+	private ELFSection m_section;
 
-  this(ELFSection section) {
-    this.m_section = section;
-  }
+	this(ELFSection section) {
+		this.m_section = section;
+	}
 
-  string getStringAt(size_t index) {
-    import std.algorithm: countUntil;
+	string getStringAt(size_t index) {
+		import std.algorithm: countUntil;
 
-    enforce(index < m_section.size);
-    ptrdiff_t len = m_section.contents[index .. $].countUntil('\0');
-    enforce(len >= 0);
+		enforce(index < m_section.size);
+		ptrdiff_t len = m_section.contents[index .. $].countUntil('\0');
+		enforce(len >= 0);
 
-    return cast(string) m_section.contents[index .. index + len];
-  }
+		return cast(string) m_section.contents[index .. index + len];
+	}
 
-  auto strings() {
-    struct Strings {
-      private ELFSection m_section;
-      private size_t m_currentIndex = 0;
+	auto strings() {
+		struct Strings {
+			private ELFSection m_section;
+			private size_t m_currentIndex = 0;
 
-      @property bool empty() { return m_currentIndex >= m_section.size; }
+			@property bool empty() { return m_currentIndex >= m_section.size; }
 
-      @property string front() {
-        enforce(!empty, "out of bounds exception");
-        ptrdiff_t len = frontLength();
-        enforce(len >= 0, "invalid data");
-        return cast(string) m_section.contents[m_currentIndex .. m_currentIndex + len];
-      }
+			@property string front() {
+				enforce(!empty, "out of bounds exception");
+				ptrdiff_t len = frontLength();
+				enforce(len >= 0, "invalid data");
+				return cast(string) m_section.contents[m_currentIndex .. m_currentIndex + len];
+			}
 
-      private auto frontLength() {
-        import std.algorithm: countUntil;
+			private auto frontLength() {
+				import std.algorithm: countUntil;
 
-        ptrdiff_t len = m_section.contents[m_currentIndex .. $].countUntil('\0');
-        return len;
-      }
+				ptrdiff_t len = m_section.contents[m_currentIndex .. $].countUntil('\0');
+				return len;
+			}
 
-      void popFront() {
-        enforce(!empty, "out of bounds exception");
-        this.m_currentIndex += frontLength() + 1;
-      }
+			void popFront() {
+				enforce(!empty, "out of bounds exception");
+				this.m_currentIndex += frontLength() + 1;
+			}
 
-      @property typeof(this) save() {
-        return this;
-      }
+			@property typeof(this) save() {
+				return this;
+			}
 
-      this(ELFSection section) {
-        this.m_section = section;
-      }
-    }
+			this(ELFSection section) {
+				this.m_section = section;
+			}
+		}
 
-    return Strings(this.m_section);
-  }
+		return Strings(this.m_section);
+	}
 }

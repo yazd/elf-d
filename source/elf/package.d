@@ -16,7 +16,7 @@ import std.conv : to;
 alias enforce = enforceEx!ELFException;
 
 abstract class ELF {
-	package MmFile m_file;
+	MmFile m_file;
 
 	private this(MmFile file) {
 		this.m_file = file;
@@ -41,58 +41,58 @@ abstract class ELF {
 		}
 	}
 
-  private void checkValidity() {
-    enforce(m_file.length > 16);
-    enforce(m_file[0 .. 4] == ['\x7f', 'E', 'L', 'F']);
-  }
+	private void checkValidity() {
+		enforce(m_file.length > 16);
+		enforce(m_file[0 .. 4] == ['\x7f', 'E', 'L', 'F']);
+	}
 
-  @property ELFHeader header();
-  ELFSection buildSection(ubyte[] section);
+	@property ELFHeader header();
+	ELFSection buildSection(ubyte[] section);
 
 	@property auto sections() {
-    struct Sections {
-      private size_t m_currentIndex = 0;
-      ELF m_elf;
+		struct Sections {
+			private size_t m_currentIndex = 0;
+			ELF m_elf;
 
-      this(ELF elf) { this.m_elf = elf; }
+			this(ELF elf) { this.m_elf = elf; }
 
-      @property bool empty() { return m_currentIndex >= m_elf.header.numberOfSectionHeaderEntries; }
-      @property size_t length() { return m_elf.header.numberOfSectionHeaderEntries - m_currentIndex; }
+			@property bool empty() { return m_currentIndex >= m_elf.header.numberOfSectionHeaderEntries; }
+			@property size_t length() { return m_elf.header.numberOfSectionHeaderEntries - m_currentIndex; }
 
-      @property ELFSection front() {
-      	return this[m_currentIndex];
-      }
+			@property ELFSection front() {
+				return this[m_currentIndex];
+			}
 
-      void popFront() {
-      	enforce(!empty, "out of bounds exception");
-      	this.m_currentIndex++;
-      }
+			void popFront() {
+				enforce(!empty, "out of bounds exception");
+				this.m_currentIndex++;
+			}
 
-      @property typeof(this) save() {
-      	return this;
-      }
+			@property typeof(this) save() {
+				return this;
+			}
 
-      ELFSection opIndex(size_t index) {
-        enforce(index < m_elf.header.numberOfSectionHeaderEntries, "out of bounds access");
-        auto sectionStart = m_elf.header.sectionHeaderOffset + index * m_elf.header.sizeOfSectionHeaderEntry;
-        auto section = m_elf.m_file[sectionStart .. sectionStart + m_elf.header.sizeOfSectionHeaderEntry];
-        return this.m_elf.buildSection(cast(ubyte[]) section);
-      }
-    }
-    return Sections(this);
-  }
+			ELFSection opIndex(size_t index) {
+				enforce(index < m_elf.header.numberOfSectionHeaderEntries, "out of bounds access");
+				auto sectionStart = m_elf.header.sectionHeaderOffset + index * m_elf.header.sizeOfSectionHeaderEntry;
+				auto section = m_elf.m_file[sectionStart .. sectionStart + m_elf.header.sizeOfSectionHeaderEntry];
+				return this.m_elf.buildSection(cast(ubyte[]) section);
+			}
+		}
+		return Sections(this);
+	}
 
-  StringTable getSectionNamesStringTable() {
-  	ELFSection section = this.sections[this.header.sectionHeaderStringTableIndex];
-  	return StringTable(section);
-  }
+	StringTable getSectionNamesStringTable() {
+		ELFSection section = this.sections[this.header.sectionHeaderStringTableIndex];
+		return StringTable(section);
+	}
 
-  StringTable getSymbolsStringTable() {
-    foreach (section; this.sections) {
-      if (section.name == ".strtab") return StringTable(section);
-    }
-    assert(0, "symbol string table not found");
-  }
+	StringTable getSymbolsStringTable() {
+		foreach (section; this.sections) {
+			if (section.name == ".strtab") return StringTable(section);
+		}
+		assert(0, "symbol string table not found");
+	}
 }
 
 final class ELF64 : ELF {
@@ -153,16 +153,16 @@ final class ELF32 : ELF {
 
 abstract class ELFHeader {
 	@property:
-  @ReadFrom("ident") Identifier identifier();
-  @ReadFrom("type") ObjectFileType objectFileType();
-  @ReadFrom("entry") ELF_Addr entryPoint();
-  @ReadFrom("phoff") ELF_Off programHeaderOffset();
-  @ReadFrom("shoff") ELF_Off sectionHeaderOffset();
-  @ReadFrom("phentsize") ELF_Half sizeOfProgramHeaderEntry();
-  @ReadFrom("phnum") ELF_Half numberOfProgramHeaderEntries();
-  @ReadFrom("shentsize") ELF_Half sizeOfSectionHeaderEntry();
-  @ReadFrom("shnum") ELF_Half numberOfSectionHeaderEntries();
-  @ReadFrom("shstrndx") ELF_Half sectionHeaderStringTableIndex();
+	@ReadFrom("ident") Identifier identifier();
+	@ReadFrom("type") ObjectFileType objectFileType();
+	@ReadFrom("entry") ELF_Addr entryPoint();
+	@ReadFrom("phoff") ELF_Off programHeaderOffset();
+	@ReadFrom("shoff") ELF_Off sectionHeaderOffset();
+	@ReadFrom("phentsize") ELF_Half sizeOfProgramHeaderEntry();
+	@ReadFrom("phnum") ELF_Half numberOfProgramHeaderEntries();
+	@ReadFrom("shentsize") ELF_Half sizeOfSectionHeaderEntry();
+	@ReadFrom("shnum") ELF_Half numberOfSectionHeaderEntries();
+	@ReadFrom("shstrndx") ELF_Half sectionHeaderStringTableIndex();
 }
 
 abstract class ELFSection {
@@ -182,7 +182,7 @@ abstract class ELFSection {
 	}
 
 	auto contents() {
-	  return cast(ubyte[]) m_elf.m_file[offset() .. offset() + size()];
+		return cast(ubyte[]) m_elf.m_file[offset() .. offset() + size()];
 	}
 }
 

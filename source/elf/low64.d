@@ -18,42 +18,42 @@ alias ELF64_SXword = long;
 
 align(1) struct ELFHeader64L {
 align(1):
-  ELFIdent ident;
-  ELF64_Half type;
-  ELF64_Half machine;
-  ELF64_Word version_;
-  ELF64_Addr entry;
-  ELF64_Off phoff;
-  ELF64_Off shoff;
-  ELF64_Word flags;
-  ELF64_Half ehsize;
-  ELF64_Half phentsize;
-  ELF64_Half phnum;
-  ELF64_Half shentsize;
-  ELF64_Half shnum;
-  ELF64_Half shstrndx;
+	ELFIdent ident;
+	ELF64_Half type;
+	ELF64_Half machine;
+	ELF64_Word version_;
+	ELF64_Addr entry;
+	ELF64_Off phoff;
+	ELF64_Off shoff;
+	ELF64_Word flags;
+	ELF64_Half ehsize;
+	ELF64_Half phentsize;
+	ELF64_Half phnum;
+	ELF64_Half shentsize;
+	ELF64_Half shnum;
+	ELF64_Half shstrndx;
 }
 
 align(1) struct ELFSection64L {
 align(1):
-  ELF64_Word name;
-  ELF64_Word type;
-  ELF64_XWord flags;
-  ELF64_Addr address;
-  ELF64_Off offset;
-  ELF64_XWord size;
-  ELF64_Word link;
-  ELF64_Word info;
-  ELF64_XWord addralign;
-  ELF64_XWord entsize;
+	ELF64_Word name;
+	ELF64_Word type;
+	ELF64_XWord flags;
+	ELF64_Addr address;
+	ELF64_Off offset;
+	ELF64_XWord size;
+	ELF64_Word link;
+	ELF64_Word info;
+	ELF64_XWord addralign;
+	ELF64_XWord entsize;
 }
 
 align(1) struct ELFSymbol64L {
 align(1):
-  ELF64_Word name;
-  ubyte info;
-  ubyte other;
-  ELF64_Half shndx;
-  ELF64_Addr value;
-  ELF64_XWord size;
+	ELF64_Word name;
+	ubyte info;
+	ubyte other;
+	ELF64_Half shndx;
+	ELF64_Addr value;
+	ELF64_XWord size;
 }
