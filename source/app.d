@@ -34,21 +34,4 @@ void main() {
 		writefln("  entry size: %s bytes", section.entrySize);
 		writeln();
 	}
-
-}
-
-string printValue(T)(auto ref T source) if (is(T == struct)) {
-	auto fields = __traits(allMembers, typeof(source));
-	auto values = source.tupleof;
-
-	auto output = "";
-	foreach (index, value; values) {
-		output ~= "%-15s %s\n".format(fields[index], printValue(value));
-	}
-
-	return output;
-}
-
-string printValue(T)(auto ref T source) if (!is(T == struct)) {
-	return "%s".format(source);
 }
