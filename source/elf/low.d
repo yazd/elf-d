@@ -38,15 +38,15 @@ struct Identifier {
 	ELFIdent data;
 
 	FileClass fileClass() {
-		return data.class_.to!FileClass;
+		return cast(FileClass) data.class_;
 	}
 
 	DataEncoding dataEncoding() {
-		return data.data.to!DataEncoding;
+		return cast(DataEncoding) data.data;
 	}
 
 	OSABI osABI() {
-		return data.osabi.to!OSABI;
+		return cast(OSABI) data.osabi;
 	}
 
 	ubyte abiVersion() {
@@ -54,15 +54,15 @@ struct Identifier {
 	}
 }
 
-enum FileClass {
+enum FileClass : ubyte {
 	class32 = 1, class64 = 2,
 }
 
-enum DataEncoding {
+enum DataEncoding : ubyte {
 	littleEndian = 1, bigEndian = 2,
 }
 
-enum OSABI {
+enum OSABI : ubyte {
 	sysv = 0, hpux = 1, standalone = 255,
 }
 

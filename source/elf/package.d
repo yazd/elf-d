@@ -60,6 +60,7 @@ abstract class ELF {
 			@property size_t length() { return m_elf.header.numberOfSectionHeaderEntries - m_currentIndex; }
 
 			@property ELFSection front() {
+				enforce(!empty, "out of bounds exception");
 				return this[m_currentIndex];
 			}
 
@@ -73,7 +74,7 @@ abstract class ELF {
 			}
 
 			ELFSection opIndex(size_t index) {
-				enforce(index < m_elf.header.numberOfSectionHeaderEntries, "out of bounds access");
+				enforce(index < m_elf.header.numberOfSectionHeaderEntries, "out of bounds exception");
 				auto sectionStart = m_elf.header.sectionHeaderOffset + index * m_elf.header.sizeOfSectionHeaderEntry;
 				auto section = m_elf.m_file[sectionStart .. sectionStart + m_elf.header.sizeOfSectionHeaderEntry];
 				return this.m_elf.buildSection(cast(ubyte[]) section);
@@ -120,7 +121,7 @@ final class ELF64 : ELF {
 		ELFSection64 section = new ELFSection64(sectionRep);
 		section.m_elf = this;
 		return section;
-	} 
+	}
 }
 
 final class ELF32 : ELF {

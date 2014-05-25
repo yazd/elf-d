@@ -26,7 +26,6 @@ string generateClassMixin(Interface, string ClassName, Source)() {
 				static if (is(typeof(__traits(getMember, Interface, MemberName)))) {
 					foreach (Attribute; __traits(getAttributes, __traits(getMember, Interface, MemberName))) {
 						static if (is(typeof(Attribute) == ReadFrom)) {
-							
 							enum SourceMemberName = Attribute.name;
 							alias MemberType = typeof(__traits(getMember, Interface, MemberName));
 							alias SourceType = typeof(__traits(getMember, Source, SourceMemberName));

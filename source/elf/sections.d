@@ -5,9 +5,11 @@
 
 module elf.sections;
 
-import std.exception: enforce;
+import std.exception;
 import std.conv : to;
 import elf;
+
+alias enforce = enforceEx!ELFException;
 
 struct StringTable {
 	private ELFSection m_section;
