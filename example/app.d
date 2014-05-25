@@ -12,6 +12,8 @@ void main() {
 	writeln(elf.header.identifier.abiVersion);
 	writeln(elf.header.identifier.osABI);
 	writeln(elf.header.objectFileType);
+	writeln(elf.header.machineISA);
+	writeln(elf.header.version_);
 	writefln("0x%x", elf.header.entryPoint);
 	writeln(elf.header.programHeaderOffset);
 	writeln(elf.header.sectionHeaderOffset);

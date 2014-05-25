@@ -63,15 +63,24 @@ enum DataEncoding : ubyte {
 }
 
 enum OSABI : ubyte {
-	sysv = 0, hpux = 1, standalone = 255,
+	sysv = 0x00,
+	hpux = 0x01,
+	netBSD = 0x02,
+	linux = 0x03,
+	solaris = 0x06,
+	aix = 0x07,
+	irix = 0x08,
+	freeBSD = 0x09,
+	openBSD = 0x0C,
+	standalone = 0xFF,
 }
 
 enum ObjectFileType : ELF_Half {
-	none = 0,
-	relocatable = 1,
-	executable = 2,
-	shared_ = 3,
-	core = 4,
+	none = 0x0000,
+	relocatable = 0x0001,
+	executable = 0x0002,
+	shared_ = 0x0003,
+	core = 0x0004,
 	lowOS = 0xFE00,
 	highOS = 0xFEFF,
 	lowProccessor = 0xFF00,
@@ -79,18 +88,18 @@ enum ObjectFileType : ELF_Half {
 }
 
 enum SectionType : ELF_Word {
-	null_ = 0,
-	programBits = 1,
-	symbolTable = 2,
-	stringTable = 3,
-	rela = 4,
-	symbolHashTable = 5,
-	dynamicLinkingTable = 6,
-	note = 7,
-	noBits = 8,
-	rel = 9,
-	shlib = 10,
-	dynamicLoaderSymbolTable = 11,
+	null_ = 0x0000_0000,
+	programBits = 0x0000_0001,
+	symbolTable = 0x0000_0002,
+	stringTable = 0x0000_0003,
+	rela = 0x0000_0004,
+	symbolHashTable = 0x0000_0005,
+	dynamicLinkingTable =	0x0000_0006,
+	note = 0x0000_0007,
+	noBits = 0x0000_0008,
+	rel = 0x0000_0009,
+	shlib = 0x0000_000A,
+	dynamicLoaderSymbolTable = 0x0000_000B,
 	lowOS = 0x6000_0000,
 	highOS = 0x6FFF_FFFF,
 	lowProcessor = 0x7000_0000,
@@ -99,9 +108,21 @@ enum SectionType : ELF_Word {
 
 // TODO: Review this
 enum SectionFlag : ELF64_XWord {
-	write = 0x1,
-	alloc = 0x2,
-	executable = 0x4,
+	write = 0x0000_0001,
+	alloc = 0x0000_0002,
+	executable = 0x0000_0004,
 	maskOS = 0x0F00_0000,
 	maskProcessor = 0xF000_0000,
+}
+
+enum TargetISA : ELF_Word {
+	sparc = 0x02,
+	x86 = 0x03,
+	mips = 0x08,
+	powerpc = 0x14,
+	arm = 0x28,
+	superh = 0x2A,
+	ia64 = 0x32,
+	x86_64 = 0x3E,
+	aarch64 = 0xB7,
 }

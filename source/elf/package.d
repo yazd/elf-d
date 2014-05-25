@@ -156,6 +156,8 @@ abstract class ELFHeader {
 	@property:
 	@ReadFrom("ident") Identifier identifier();
 	@ReadFrom("type") ObjectFileType objectFileType();
+	@ReadFrom("machine") TargetISA machineISA();
+	@ReadFrom("version_") ELF_Word version_();
 	@ReadFrom("entry") ELF_Addr entryPoint();
 	@ReadFrom("phoff") ELF_Off programHeaderOffset();
 	@ReadFrom("shoff") ELF_Off sectionHeaderOffset();
