@@ -92,17 +92,17 @@ abstract class ELF {
 		foreach (section; this.sections) {
 			if (section.name == ".strtab") return StringTable(section);
 		}
-		assert(0, "symbol string table not found");
+		throw new ELFException("symbol string table not found");
 	}
 }
 
 final class ELF64 : ELF {
 	import elf.low64;
 
-	mixin(generateClassMixin!(ELFHeader, "ELFHeader64", ELFHeader64L));
+	mixin(generateClassMixin!(ELFHeader, "ELFHeader64", ELFHeader64L, 32));
 	ELFHeader64 m_header;
 
-	mixin(generateClassMixin!(ELFSection, "ELFSection64", ELFSection64L));
+	mixin(generateClassMixin!(ELFSection, "ELFSection64", ELFSection64L, 64));
 
 	this(MmFile file) {
 		super(file);
@@ -127,10 +127,10 @@ final class ELF64 : ELF {
 final class ELF32 : ELF {
 	import elf.low32;
 
-	mixin(generateClassMixin!(ELFHeader, "ELFHeader32", ELFHeader32L));
+	mixin(generateClassMixin!(ELFHeader, "ELFHeader32", ELFHeader32L, 32));
 	ELFHeader32 m_header;
 
-	mixin(generateClassMixin!(ELFSection, "ELFSection32", ELFSection32L));
+	mixin(generateClassMixin!(ELFSection, "ELFSection32", ELFSection32L, 64));
 
 	this(MmFile file) {
 		super(file);
@@ -152,7 +152,7 @@ final class ELF32 : ELF {
 	}
 }
 
-abstract class ELFHeader {
+abstract class ELFHeader : PortableHeader {
 	@property:
 	@ReadFrom("ident") Identifier identifier();
 	@ReadFrom("type") ObjectFileType objectFileType();
@@ -168,7 +168,7 @@ abstract class ELFHeader {
 	@ReadFrom("shstrndx") ELF_Half sectionHeaderStringTableIndex();
 }
 
-abstract class ELFSection {
+abstract class ELFSection : PortableHeader {
 	private ELF m_elf;
 
 	@property:

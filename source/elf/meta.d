@@ -9,7 +9,7 @@ struct ReadFrom {
 	string name;
 }
 
-string generateClassMixin(Interface, string ClassName, Source)() {
+string generateClassMixin(Interface, string ClassName, Source, int Bits)() {
 	import std.string;
 	string output = "";
 
@@ -20,6 +20,10 @@ string generateClassMixin(Interface, string ClassName, Source)() {
 		output ~= "  this(%s data) {\n".format(Source.stringof);
 		output ~= "    this.data = data;\n";
 		output ~= "  }\n";
+
+		output ~= "  @property bool is32bit() { return %s; }\n".format(Bits == 32);
+		output ~= "  @property bool is64bit() { return %s; }\n".format(Bits == 64);
+		output ~= "  @property size_t datasize() { return %s.sizeof; }\n".format(Source.stringof);
 
 		{
 			foreach (MemberName; __traits(allMembers, Interface)) {
@@ -45,4 +49,10 @@ string generateClassMixin(Interface, string ClassName, Source)() {
 	}
 
 	return output;
+}
+
+interface PortableHeader {
+	@property bool is32bit();
+	@property bool is64bit();
+	@property size_t datasize();
 }

@@ -1,5 +1,6 @@
 import std.stdio;
 import std.string;
+import std.algorithm;
 import elf;
 
 void main() {
@@ -7,6 +8,8 @@ void main() {
 	auto file = thisExePath();
 
 	ELF elf = ELF.fromFile(file);
+
+	// ELF file general properties
 	writeln(elf.header.identifier.fileClass);
 	writeln(elf.header.identifier.dataEncoding);
 	writeln(elf.header.identifier.abiVersion);
@@ -24,8 +27,7 @@ void main() {
 
 	writeln();
 
-	writefln("%-(%s\n%)", elf.getSymbolsStringTable().strings);
-
+	// ELF sections
 	foreach (section; elf.sections) {
 		writeln("Section (", section.name, ")");
 		writefln("  type: %s", section.type);
@@ -35,5 +37,17 @@ void main() {
 		writefln("  size: %s bytes", section.size);
 		writefln("  entry size: %s bytes", section.entrySize);
 		writeln();
+	}
+
+	// ELF symbols string table
+	writefln("%-(%s\n%)", elf.getSymbolsStringTable().strings);
+
+	// ELF .debug_line information
+	ELFSection dlSection = elf.sections.filter!(s => s.name == ".debug_line").front;
+
+	import elf.sections.debugline;
+	auto dl = DebugLine(dlSection);
+	foreach (program; dl.programs) {
+		writefln("%-(%s\n%)", program.addressInfo.map!(a => "0x%x => %s@%s".format(a.address, program.fileFromIndex(a.fileIndex), a.line)));
 	}
 }

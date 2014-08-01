@@ -3,7 +3,7 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-module elf.sections;
+module elf.sections.stringtable;
 
 import std.exception;
 import std.conv : to;
