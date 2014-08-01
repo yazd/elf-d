@@ -9,21 +9,23 @@ void main() {
 
 	ELF elf = ELF.fromFile(file);
 
+	writeln("File: ", file);
+
 	// ELF file general properties
-	writeln(elf.header.identifier.fileClass);
-	writeln(elf.header.identifier.dataEncoding);
-	writeln(elf.header.identifier.abiVersion);
-	writeln(elf.header.identifier.osABI);
-	writeln(elf.header.objectFileType);
-	writeln(elf.header.machineISA);
-	writeln(elf.header.version_);
-	writefln("0x%x", elf.header.entryPoint);
-	writeln(elf.header.programHeaderOffset);
-	writeln(elf.header.sectionHeaderOffset);
-	writeln(elf.header.sizeOfProgramHeaderEntry);
-	writeln(elf.header.numberOfProgramHeaderEntries);
-	writeln(elf.header.sizeOfSectionHeaderEntry);
-	writeln(elf.header.numberOfSectionHeaderEntries);
+	writeln("fileClass: ", elf.header.identifier.fileClass);
+	writeln("dataEncoding: ", elf.header.identifier.dataEncoding);
+	writeln("abiVersion: ", elf.header.identifier.abiVersion);
+	writeln("osABI: ", elf.header.identifier.osABI);
+	writeln("objectFileType: ", elf.header.objectFileType);
+	writeln("machineISA: ", elf.header.machineISA);
+	writeln("version_: ", elf.header.version_);
+	writefln("entryPoint: 0x%x", elf.header.entryPoint);
+	writeln("programHeaderOffset: ", elf.header.programHeaderOffset);
+	writeln("sectionHeaderOffset: ", elf.header.sectionHeaderOffset);
+	writeln("sizeOfProgramHeaderEntry: ", elf.header.sizeOfProgramHeaderEntry);
+	writeln("numberOfProgramHeaderEntries: ", elf.header.numberOfProgramHeaderEntries);
+	writeln("sizeOfSectionHeaderEntry: ", elf.header.sizeOfSectionHeaderEntry);
+	writeln("numberOfSectionHeaderEntries: ", elf.header.numberOfSectionHeaderEntries);
 
 	writeln();
 
