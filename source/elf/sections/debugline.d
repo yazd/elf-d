@@ -130,7 +130,11 @@ struct DebugLine {
 								break;
 
 							default:
-								throw new ELFException("invalid extended opcode");
+								// unknown opcode
+								// trace("unknown extended opcode ", eopcode);
+								program = program[len - 1 .. $];
+								break;
+
 						}
 
 						break;
