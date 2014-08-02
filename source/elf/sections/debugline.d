@@ -45,25 +45,27 @@ struct DebugLine {
 				lp.m_standardOpcodeLengths[i] = lineProgramContents[lp.m_header.datasize + i .. lp.m_header.datasize + i + 1][0];
 			}
 
-			lp.m_files = new string[0];
+			lp.m_files = new FileInfo[0];
 			lp.m_dirs = new string[0];
 
-			auto filesSection = lineProgramContents[lp.m_header.datasize + lp.m_standardOpcodeLengths.length .. $];
+			auto pathData = lineProgramContents[lp.m_header.datasize + lp.m_standardOpcodeLengths.length .. $];
 
-			while (filesSection[0] != 0) {
-				lp.m_dirs ~= (cast(char*) filesSection.ptr).to!string();
-				filesSection = filesSection[lp.m_dirs[$ - 1].length + 1 .. $];
+			while (pathData[0] != 0) {
+				lp.m_dirs ~= (cast(char*) pathData.ptr).to!string();
+				pathData = pathData[lp.m_dirs[$ - 1].length + 1 .. $];
 			}
 
-			filesSection.popFront();
+			pathData.popFront();
 
-			while (filesSection[0] != 0) {
-				lp.m_files ~= (cast(char*) filesSection.ptr).to!string();
-				filesSection = filesSection[lp.m_files[$ - 1].length + 1 .. $];
+			while (pathData[0] != 0) {
+				string file = (cast(char*) pathData.ptr).to!string();
+				pathData = pathData[file.length + 1 .. $];
 
-				auto dirIndex = filesSection.readULEB128();
-				auto lastMod = filesSection.readULEB128();
-				auto fileLength = filesSection.readULEB128();
+				auto dirIndex = pathData.readULEB128();
+				auto lastMod = pathData.readULEB128(); // unused
+				auto fileLength = pathData.readULEB128(); // unused
+
+				lp.m_files ~= FileInfo(file, dirIndex);
 			}
 
 			static if (__VERSION__ < 2065) { // bug workaround for older versions
@@ -123,9 +125,9 @@ struct DebugLine {
 							case defineFile:
 								auto file = (cast(char*) program.ptr).to!string();
 								program = program[file.length + 1 .. $];
-								auto dirIndex = program.readULEB128();
-								auto fileMod = program.readULEB128();
-								auto fileSize = program.readULEB128();
+								auto dirIndex = program.readULEB128(); // unused
+								auto fileMod = program.readULEB128(); // unused
+								auto fileSize = program.readULEB128(); // unused
 								// trace("defineFile");
 								break;
 
@@ -334,7 +336,7 @@ struct LineProgram {
 		LineProgramHeader m_header;
 
 		ubyte[] m_standardOpcodeLengths;
-		string[] m_files;
+		FileInfo[] m_files;
 		string[] m_dirs;
 
 		AddressInfo[] m_addresses;
@@ -345,8 +347,17 @@ struct LineProgram {
 	}
 
 	string fileFromIndex(ulong fileIndex) const {
-		return m_files[fileIndex - 1];
+		import std.path : buildPath;
+
+		FileInfo f = m_files[fileIndex - 1];
+		if (f.dirIndex == 0) return f.file;
+		else return buildPath(m_dirs[f.dirIndex - 1], f.file);
 	}
+}
+
+struct FileInfo {
+	string file;
+	size_t dirIndex;
 }
 
 struct AddressInfo {
