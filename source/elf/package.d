@@ -12,6 +12,7 @@ import elf.low, elf.meta;
 import std.mmfile;
 import std.exception;
 import std.conv : to;
+import std.typecons : Nullable;
 
 alias enforce = enforceEx!ELFException;
 
@@ -83,16 +84,23 @@ abstract class ELF {
 		return Sections(this);
 	}
 
+	// linear lookup
+	Nullable!ELFSection getSection(string name) {
+		foreach (section; this.sections) {
+			if (section.name == name) return Nullable!ELFSection(section);
+		}
+		return Nullable!ELFSection();
+	}
+
 	StringTable getSectionNamesStringTable() {
 		ELFSection section = this.sections[this.header.sectionHeaderStringTableIndex];
 		return StringTable(section);
 	}
 
-	StringTable getSymbolsStringTable() {
-		foreach (section; this.sections) {
-			if (section.name == ".strtab") return StringTable(section);
-		}
-		throw new ELFException("symbol string table not found");
+	Nullable!StringTable getSymbolsStringTable() {
+		Nullable!ELFSection section = this.getSection(".strtab");
+		if (section.isNull) return Nullable!StringTable();
+		else return Nullable!StringTable(StringTable(section.get()));
 	}
 }
 
