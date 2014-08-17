@@ -53,4 +53,7 @@ void main() {
 	foreach (program; dl.programs) {
 		writefln("%-(%s\n%)", program.addressInfo.map!(a => "0x%x => %s@%s".format(a.address, program.fileFromIndex(a.fileIndex), a.line)));
 	}
+
+	ELFSection s = elf.getSection(".symtab");
+	writefln("%-(%s\n%)", SymbolTable(s).symbols().map!(s => "%s %s".format(s.binding, s.name(strtab))));
 }

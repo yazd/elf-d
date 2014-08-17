@@ -14,6 +14,8 @@ alias ELF32_Half = ushort;
 alias ELF32_Word = uint;
 alias ELF32_SWord = int;
 
+alias ELF32_Section = ushort;
+
 align(1) struct ELFHeader32L {
 align(1):
 	ELFIdent ident;
@@ -53,5 +55,5 @@ align(1):
 	ELF32_Word size;
 	ubyte info;
 	ubyte other;
-	ELF32_Half shndx;
+	ELF32_Section shndx;
 }

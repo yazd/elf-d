@@ -16,6 +16,8 @@ alias ELF64_SWord = int;
 alias ELF64_XWord = ulong;
 alias ELF64_SXword = long;
 
+alias ELF64_Section = ushort;
+
 align(1) struct ELFHeader64L {
 align(1):
 	ELFIdent ident;

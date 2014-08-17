@@ -16,6 +16,7 @@ alias ELF_SWord = ELF64_SWord;
 alias ELF_XWord = ELF64_XWord;
 alias ELF_Addr = ELF64_Addr;
 alias ELF_Off = ELF64_Off;
+alias ELF_Section = ELF64_Section;
 
 align(1) struct ELFIdent {
 align(1):
