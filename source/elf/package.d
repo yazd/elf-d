@@ -107,7 +107,7 @@ abstract class ELF {
 final class ELF64 : ELF {
 	import elf.low64;
 
-	mixin(generateClassMixin!(ELFHeader, "ELFHeader64", ELFHeader64L, 32));
+	mixin(generateClassMixin!(ELFHeader, "ELFHeader64", ELFHeader64L, 64));
 	ELFHeader64 m_header;
 
 	mixin(generateClassMixin!(ELFSection, "ELFSection64", ELFSection64L, 64));
@@ -138,7 +138,7 @@ final class ELF32 : ELF {
 	mixin(generateClassMixin!(ELFHeader, "ELFHeader32", ELFHeader32L, 32));
 	ELFHeader32 m_header;
 
-	mixin(generateClassMixin!(ELFSection, "ELFSection32", ELFSection32L, 64));
+	mixin(generateClassMixin!(ELFSection, "ELFSection32", ELFSection32L, 32));
 
 	this(MmFile file) {
 		super(file);

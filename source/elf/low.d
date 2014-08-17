@@ -92,7 +92,7 @@ enum SectionType : ELF_Word {
 	programBits = 0x0000_0001,
 	symbolTable = 0x0000_0002,
 	stringTable = 0x0000_0003,
-	rela = 0x0000_0004,
+	relocation = 0x0000_0004,
 	symbolHashTable = 0x0000_0005,
 	dynamicLinkingTable =	0x0000_0006,
 	note = 0x0000_0007,

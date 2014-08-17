@@ -41,13 +41,14 @@ void main() {
 		writeln();
 	}
 
-	// ELF symbols string table
-	writefln("%-(%s\n%)", elf.getSymbolsStringTable().strings);
+
+	//// ELF symbols string table
+	StringTable strtab = elf.getSymbolsStringTable();
+	writefln("%-(%s\n%)", strtab.strings);
 
 	// ELF .debug_line information
-	ELFSection dlSection = elf.sections.filter!(s => s.name == ".debug_line").front;
+	ELFSection dlSection = elf.getSection(".debug_line");
 
-	import elf.sections.debugline;
 	auto dl = DebugLine(dlSection);
 	foreach (program; dl.programs) {
 		writefln("%-(%s\n%)", program.addressInfo.map!(a => "0x%x => %s@%s".format(a.address, program.fileFromIndex(a.fileIndex), a.line)));

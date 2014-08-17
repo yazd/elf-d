@@ -29,7 +29,7 @@ struct StringTable {
 	}
 
 	auto strings() {
-		struct Strings {
+		static struct Strings {
 			private ELFSection m_section;
 			private size_t m_currentIndex = 0;
 
