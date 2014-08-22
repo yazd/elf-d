@@ -72,8 +72,8 @@ struct DebugLine {
 				auto startOffset = lp.m_header.is32bit() ? uint.sizeof * 2 + ushort.sizeof : uint.sizeof + 2 * ulong.sizeof + ushort.sizeof;
 				auto endOffset   = lp.m_header.is32bit() ? uint.sizeof : uint.sizeof + ulong.sizeof;
 			} else {
-				auto startOffset = lp.m_header.is32bit() ? LineProgramHeader32L.minimumInstructionLength.offsetof : LineProgramHeader64L.minimumInstructionLength.offsetof;
-				auto endOffset   = lp.m_header.is32bit() ? LineProgramHeader32L.unitLength.sizeof : LineProgramHeader64L.unitLength.offsetof + LineProgramHeader64L.unitLength.sizeof;
+				auto startOffset = lp.m_header.bits == 32 ? LineProgramHeader32L.minimumInstructionLength.offsetof : LineProgramHeader64L.minimumInstructionLength.offsetof;
+				auto endOffset   = lp.m_header.bits == 32 ? LineProgramHeader32L.unitLength.sizeof : LineProgramHeader64L.unitLength.offsetof + LineProgramHeader64L.unitLength.sizeof;
 			}
 
 			auto program = lineProgramContents[startOffset + lp.m_header.headerLength() .. endOffset + lp.m_header.unitLength()];
@@ -231,10 +231,7 @@ struct DebugLine {
 	}
 }
 
-mixin(generateClassMixin!(LineProgramHeader, "LineProgramHeader32", LineProgramHeader32L, 32));
-mixin(generateClassMixin!(LineProgramHeader, "LineProgramHeader64", LineProgramHeader64L, 64));
-
-abstract class LineProgramHeader : PortableHeader {
+abstract class LineProgramHeader {
 	@property:
 	@ReadFrom("unitLength") ulong unitLength();
 	@ReadFrom("dwarfVersion") ushort dwarfVersion();
@@ -244,6 +241,43 @@ abstract class LineProgramHeader : PortableHeader {
 	@ReadFrom("lineBase") byte lineBase();
 	@ReadFrom("lineRange") ubyte lineRange();
 	@ReadFrom("opcodeBase") ubyte opcodeBase();
+
+	size_t datasize();
+	ubyte bits();
+}
+
+final class LineProgramHeader32 : LineProgramHeader {
+	private LineProgramHeader32L m_data;
+	mixin(generateVirtualReads!(LineProgramHeader, "m_data"));
+
+	this(LineProgramHeader32L lph) {
+		this.m_data = lph;
+	}
+
+	@property override size_t datasize() {
+		return LineProgramHeader32L.sizeof;
+	}
+
+	@property override ubyte bits() {
+		return 32;
+	}
+}
+
+final class LineProgramHeader64 : LineProgramHeader {
+	private LineProgramHeader64L m_data;
+	mixin(generateVirtualReads!(LineProgramHeader, "m_data"));
+
+	this(LineProgramHeader64L lph) {
+		this.m_data = lph;
+	}
+
+	@property override size_t datasize() {
+		return LineProgramHeader64L.sizeof;
+	}
+
+	@property override ubyte bits() {
+		return 64;
+	}
 }
 
 private T read(T)(ref ubyte[] buffer) {

@@ -7,7 +7,7 @@ module elf;
 
 public import elf.sections;
 
-import elf.low, elf.meta;
+import elf.low, elf.low32, elf.low64, elf.meta;
 
 import std.mmfile;
 import std.exception;
@@ -105,12 +105,7 @@ abstract class ELF {
 }
 
 final class ELF64 : ELF {
-	import elf.low64;
-
-	mixin(generateClassMixin!(ELFHeader, "ELFHeader64", ELFHeader64L, 64));
 	ELFHeader64 m_header;
-
-	mixin(generateClassMixin!(ELFSection, "ELFSection64", ELFSection64L, 64));
 
 	this(MmFile file) {
 		super(file);
@@ -126,19 +121,14 @@ final class ELF64 : ELF {
 	override ELFSection64 buildSection(ubyte[] sectionData) {
 		enforce(sectionData.length == ELFSection64L.sizeof);
 		ELFSection64L sectionRep = *(cast(ELFSection64L*) sectionData.ptr);
-		ELFSection64 section = new ELFSection64(sectionRep);
+		ELFSection64 section = new ELFSection64(this, sectionRep);
 		section.m_elf = this;
 		return section;
 	}
 }
 
 final class ELF32 : ELF {
-	import elf.low32;
-
-	mixin(generateClassMixin!(ELFHeader, "ELFHeader32", ELFHeader32L, 32));
 	ELFHeader32 m_header;
-
-	mixin(generateClassMixin!(ELFSection, "ELFSection32", ELFSection32L, 32));
 
 	this(MmFile file) {
 		super(file);
@@ -154,13 +144,12 @@ final class ELF32 : ELF {
 	override ELFSection32 buildSection(ubyte[] sectionData) {
 		enforce(sectionData.length == ELFSection32L.sizeof);
 		ELFSection32L sectionRep = *(cast(ELFSection32L*) sectionData.ptr);
-		ELFSection32 section = new ELFSection32(sectionRep);
-		section.m_elf = this;
+		ELFSection32 section = new ELFSection32(this, sectionRep);
 		return section;
 	}
 }
 
-abstract class ELFHeader : PortableHeader {
+abstract class ELFHeader {
 	@property:
 	@ReadFrom("ident") Identifier identifier();
 	@ReadFrom("type") ObjectFileType objectFileType();
@@ -176,17 +165,40 @@ abstract class ELFHeader : PortableHeader {
 	@ReadFrom("shstrndx") ELF_Half sectionHeaderStringTableIndex();
 }
 
-abstract class ELFSection : PortableHeader {
-	private ELF m_elf;
+final class ELFHeader32 : ELFHeader {
+	private ELFHeader32L m_data;
+	mixin(generateVirtualReads!(ELFHeader, "m_data"));
+
+	this(ELFHeader32L data) {
+		this.m_data = data;
+	}
+}
+
+final class ELFHeader64 : ELFHeader {
+	private ELFHeader64L m_data;
+	mixin(generateVirtualReads!(ELFHeader, "m_data"));
+
+	this(ELFHeader64L data) {
+		this.m_data = data;
+	}
+}
+
+abstract class ELFSection {
+	package ELF m_elf;
 
 	@property:
 	@ReadFrom("name") ELF_Word nameIndex();
 	@ReadFrom("type") SectionType type();
-	@ReadFrom("address") ELF_Addr address();
 	@ReadFrom("flags") SectionFlag flags();
+	@ReadFrom("address") ELF_Addr address();
 	@ReadFrom("offset") ELF_Off offset();
 	@ReadFrom("size") ELF_XWord size();
+	@ReadFrom("link") ELF_Word link();
+	@ReadFrom("info") ELF_Word info();
+	@ReadFrom("addralign") ELF_XWord addrAlign();
 	@ReadFrom("entsize") ELF_XWord entrySize();
+
+	ubyte bits();
 
 	auto name() {
 		return m_elf.getSectionNamesStringTable().getStringAt(this.nameIndex());
@@ -194,6 +206,34 @@ abstract class ELFSection : PortableHeader {
 
 	auto contents() {
 		return cast(ubyte[]) m_elf.m_file[offset() .. offset() + size()];
+	}
+}
+
+final class ELFSection32 : ELFSection {
+	private ELFSection32L m_data;
+	mixin(generateVirtualReads!(ELFSection, "m_data"));
+
+	this(ELF32 elf, ELFSection32L data) {
+		this.m_elf = elf;
+		this.m_data = data;
+	}
+
+	override @property ubyte bits() {
+		return 32;
+	}
+}
+
+final class ELFSection64 : ELFSection {
+	private ELFSection64L m_data;
+	mixin(generateVirtualReads!(ELFSection, "m_data"));
+
+	this(ELF64 elf, ELFSection64L data) {
+		this.m_elf = elf;
+		this.m_data = data;
+	}
+
+	override @property ubyte bits() {
+		return 64;
 	}
 }
 

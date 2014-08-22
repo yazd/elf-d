@@ -1,6 +1,6 @@
 import std.stdio;
 import std.string;
-import std.algorithm;
+import std.algorithm, std.range;
 import elf;
 
 void main() {
@@ -11,49 +11,60 @@ void main() {
 
 	writeln("File: ", file);
 
+	writeln();
+	writeln("ELF file properties:");
+
 	// ELF file general properties
-	writeln("fileClass: ", elf.header.identifier.fileClass);
-	writeln("dataEncoding: ", elf.header.identifier.dataEncoding);
-	writeln("abiVersion: ", elf.header.identifier.abiVersion);
-	writeln("osABI: ", elf.header.identifier.osABI);
-	writeln("objectFileType: ", elf.header.objectFileType);
-	writeln("machineISA: ", elf.header.machineISA);
-	writeln("version_: ", elf.header.version_);
-	writefln("entryPoint: 0x%x", elf.header.entryPoint);
-	writeln("programHeaderOffset: ", elf.header.programHeaderOffset);
-	writeln("sectionHeaderOffset: ", elf.header.sectionHeaderOffset);
-	writeln("sizeOfProgramHeaderEntry: ", elf.header.sizeOfProgramHeaderEntry);
-	writeln("numberOfProgramHeaderEntries: ", elf.header.numberOfProgramHeaderEntries);
-	writeln("sizeOfSectionHeaderEntry: ", elf.header.sizeOfSectionHeaderEntry);
-	writeln("numberOfSectionHeaderEntries: ", elf.header.numberOfSectionHeaderEntries);
+	writeln("  fileClass: ", elf.header.identifier.fileClass);
+	writeln("  dataEncoding: ", elf.header.identifier.dataEncoding);
+	writeln("  abiVersion: ", elf.header.identifier.abiVersion);
+	writeln("  osABI: ", elf.header.identifier.osABI);
+	writeln("  objectFileType: ", elf.header.objectFileType);
+	writeln("  machineISA: ", elf.header.machineISA);
+	writeln("  version_: ", elf.header.version_);
+	writefln("  entryPoint: 0x%x", elf.header.entryPoint);
+	writeln("  programHeaderOffset: ", elf.header.programHeaderOffset);
+	writeln("  sectionHeaderOffset: ", elf.header.sectionHeaderOffset);
+	writeln("  sizeOfProgramHeaderEntry: ", elf.header.sizeOfProgramHeaderEntry);
+	writeln("  numberOfProgramHeaderEntries: ", elf.header.numberOfProgramHeaderEntries);
+	writeln("  sizeOfSectionHeaderEntry: ", elf.header.sizeOfSectionHeaderEntry);
+	writeln("  numberOfSectionHeaderEntries: ", elf.header.numberOfSectionHeaderEntries);
 
 	writeln();
+	writeln("Sections:");
 
 	// ELF sections
 	foreach (section; elf.sections) {
-		writeln("Section (", section.name, ")");
-		writefln("  type: %s", section.type);
-		writefln("  address: 0x%x", section.address);
-		writefln("  offset: 0x%x", section.offset);
-		writefln("  flags: 0x%08b", section.flags);
-		writefln("  size: %s bytes", section.size);
-		writefln("  entry size: %s bytes", section.entrySize);
+		writeln("  Section (", section.name, ")");
+		writefln("    type: %s", section.type);
+		writefln("    address: 0x%x", section.address);
+		writefln("    offset: 0x%x", section.offset);
+		writefln("    flags: 0x%08b", section.flags);
+		writefln("    size: %s bytes", section.size);
+		writefln("    entry size: %s bytes", section.entrySize);
 		writeln();
 	}
 
-
-	//// ELF symbols string table
-	StringTable strtab = elf.getSymbolsStringTable();
-	writefln("%-(%s\n%)", strtab.strings);
+	writeln();
+	writeln("'.debug_line' section contents:");
 
 	// ELF .debug_line information
 	ELFSection dlSection = elf.getSection(".debug_line");
 
 	auto dl = DebugLine(dlSection);
 	foreach (program; dl.programs) {
-		writefln("%-(%s\n%)", program.addressInfo.map!(a => "0x%x => %s@%s".format(a.address, program.fileFromIndex(a.fileIndex), a.line)));
+		writefln("%-(  %s\n%)", program.addressInfo.map!(a => "0x%x => %s@%s".format(a.address, program.fileFromIndex(a.fileIndex), a.line)));
 	}
 
-	ELFSection s = elf.getSection(".symtab");
-	writefln("%-(%s\n%)", SymbolTable(s).symbols().map!(s => "%s %s".format(s.binding, s.name(strtab))));
+	writeln();
+	writeln("Symbol table sections contents:");
+
+	foreach (section; only(".symtab", ".dynsym")) {
+		ELFSection s = elf.getSection(section);
+		writeln("  Symbol table ", section, " contains: ", SymbolTable(s).symbols().walkLength());
+
+		writefln("%-(    %s\n%)", SymbolTable(s).symbols().map!(s => "%s\t%s\t%s".format(s.binding, s.type, s.name)));
+		writeln();
+	}
+
 }

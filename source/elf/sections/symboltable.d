@@ -15,7 +15,7 @@ struct SymbolTable {
 	private SymbolTableImpl m_impl;
 
 	this(ELFSection section) {
-		if (section.is32bit()) {
+		if (section.bits == 32) {
 			m_impl = new SymbolTable32Impl(section);
 		} else {
 			m_impl = new SymbolTable64Impl(section);
@@ -56,19 +56,20 @@ struct SymbolTable {
 	}
 }
 
-mixin(generateClassMixin!(ELFSymbol, "ELFSymbol32", ELFSymbol32L, 32));
-mixin(generateClassMixin!(ELFSymbol, "ELFSymbol64", ELFSymbol64L, 64));
-
 private interface SymbolTableImpl {
 	ELFSymbol getSymbolAt(size_t index);
 	@property ulong length();
 }
 
 private class SymbolTable32Impl : SymbolTableImpl {
-	private ELFSection m_section;
+	private ELFSection32 m_section;
 
 	this(ELFSection section) {
-		enforce(section.is32bit());
+		enforce(section.bits == 32);
+		this(cast(ELFSection32) section);
+	}
+
+	this(ELFSection32 section) {
 		this.m_section = section;
 	}
 
@@ -76,7 +77,7 @@ private class SymbolTable32Impl : SymbolTableImpl {
 		enforce(index * ELFSymbol32L.sizeof < m_section.size);
 		ELFSymbol32L symbol;
 		symbol = *cast(ELFSymbol32L*) m_section.contents[index * ELFSymbol32L.sizeof .. (index + 1) * ELFSymbol32L.sizeof].ptr;
-		return new ELFSymbol32(symbol);
+		return new ELFSymbol32(m_section, symbol);
 	}
 
 	@property ulong length() {
@@ -85,10 +86,14 @@ private class SymbolTable32Impl : SymbolTableImpl {
 }
 
 private class SymbolTable64Impl : SymbolTableImpl {
-	private ELFSection m_section;
+	private ELFSection64 m_section;
 
 	this(ELFSection section) {
-		enforce(section.is64bit());
+		enforce(section.bits == 64);
+		this(cast(ELFSection64) section);
+	}
+
+	this(ELFSection64 section) {
 		this.m_section = section;
 	}
 
@@ -96,7 +101,7 @@ private class SymbolTable64Impl : SymbolTableImpl {
 		enforce(index * ELFSymbol64L.sizeof < m_section.size);
 		ELFSymbol64L symbol;
 		symbol = *cast(ELFSymbol64L*) m_section.contents[index * ELFSymbol64L.sizeof .. (index + 1) * ELFSymbol64L.sizeof].ptr;
-		return new ELFSymbol64(symbol);
+		return new ELFSymbol64(m_section, symbol);
 	}
 
 	@property ulong length() {
@@ -104,7 +109,9 @@ private class SymbolTable64Impl : SymbolTableImpl {
 	}
 }
 
-abstract class ELFSymbol : PortableHeader {
+abstract class ELFSymbol {
+	private ELFSection m_section;
+
 	@property:
 	@ReadFrom("name") ELF_Word nameIndex();
 	@ReadFrom("info") ubyte info();
@@ -113,12 +120,37 @@ abstract class ELFSymbol : PortableHeader {
 	@ReadFrom("value") ELF_Addr value();
 	@ReadFrom("size") ELF_XWord size();
 
-	string name(StringTable strTable) {
-		return strTable.getStringAt(nameIndex);
+	string name() {
+		StringTable strtab = StringTable(m_section.m_elf.sections[m_section.link()]);
+		return strtab.getStringAt(nameIndex);
 	}
 
 	SymbolBinding binding() {
 		return cast(SymbolBinding) (this.info() >> 4);
+	}
+
+	SymbolType type() {
+		return cast(SymbolType) (this.info() & 0xF);
+	}
+}
+
+final class ELFSymbol32 : ELFSymbol {
+	private ELFSymbol32L m_symbol;
+	mixin(generateVirtualReads!(ELFSymbol, "m_symbol"));
+
+	this(ELFSection32 section, ELFSymbol32L symbol) {
+		this.m_section = section;
+		this.m_symbol = symbol;
+	}
+}
+
+final class ELFSymbol64 : ELFSymbol {
+	private ELFSymbol64L m_symbol;
+	mixin(generateVirtualReads!(ELFSymbol, "m_symbol"));
+
+	this(ELFSection64 section, ELFSymbol64L symbol) {
+		this.m_section = section;
+		this.m_symbol = symbol;
 	}
 }
 
@@ -126,6 +158,16 @@ enum SymbolBinding {
 	local = 0,
 	global = 1,
 	weak = 2,
+	loproc = 13,
+	hiproc = 15,
+}
+
+enum SymbolType {
+	notype = 0,
+	object = 1,
+	func = 2,
+	section = 3,
+	file = 4,
 	loproc = 13,
 	hiproc = 15,
 }
