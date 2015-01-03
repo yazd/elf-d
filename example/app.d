@@ -53,6 +53,7 @@ void main() {
 
 	auto dl = DebugLine(dlSection);
 	foreach (program; dl.programs) {
+		writefln("  Files:\n%-(    %s\n%)\n", program.allFiles());
 		writefln("%-(  %s\n%)", program.addressInfo.map!(a => "0x%x => %s@%s".format(a.address, program.fileFromIndex(a.fileIndex), a.line)));
 	}
 
@@ -66,5 +67,4 @@ void main() {
 		writefln("%-(    %s\n%)", SymbolTable(s).symbols().map!(s => "%s\t%s\t%s".format(s.binding, s.type, s.name)));
 		writeln();
 	}
-
 }

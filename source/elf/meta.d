@@ -5,10 +5,11 @@
 
 module elf.meta;
 
+package:
+
 struct ReadFrom {
 	string name;
 }
-
 
 string generateVirtualReads(Interface, string dataSource)() {
 	import std.string;

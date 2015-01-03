@@ -305,7 +305,7 @@ private ulong readULEB128(ref ubyte[] buffer) {
 
 unittest {
 	ubyte[] data = [0xe5, 0x8e, 0x26, 0xDE, 0xAD, 0xBE, 0xEF];
-	assert(readULEB128(data) == 624485);
+	assert(readULEB128(data) == 624_485);
 	assert(data[] == [0xDE, 0xAD, 0xBE, 0xEF]);
 }
 
@@ -386,6 +386,19 @@ struct LineProgram {
 		FileInfo f = m_files[fileIndex - 1];
 		if (f.dirIndex == 0) return f.file;
 		else return buildPath(m_dirs[f.dirIndex - 1], f.file);
+	}
+
+	string[] allFiles() const {
+		import std.path : buildPath;
+
+		string[] result;
+		foreach (file; m_files)
+		{
+			if (file.dirIndex == 0) result ~= file.file;
+			else result ~= buildPath(m_dirs[file.dirIndex - 1], file.file);
+		}
+
+		return result;
 	}
 }
 
