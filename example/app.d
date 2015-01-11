@@ -45,6 +45,32 @@ void main() {
 		writeln();
 	}
 
+	printDebugAbbrev(elf);
+	//printDebugLine(elf);
+	//printSymbolTables(elf);
+}
+
+void printDebugAbbrev(ELF elf) {
+	writeln();
+	writeln("'.debug_abbrev' section contents:");
+
+	// ELF .debug_abbrev information
+	ELFSection dlSection = elf.getSection(".debug_abbrev");
+
+	auto da = DebugAbbrev(dlSection);
+	foreach (tag; da.tags) {
+		writefln("Tag (0x%x):", tag.code);
+		writefln("  name: %s", tag.name);
+		writefln("  has children: %s", tag.hasChildren);
+		writefln("  attributes:");
+		foreach (attr; tag.attributes) {
+			writefln("    %s\t%s", attr.name, attr.form);
+		}
+		writeln();
+	}
+}
+
+void printDebugLine(ELF elf) {
 	writeln();
 	writeln("'.debug_line' section contents:");
 
@@ -56,7 +82,9 @@ void main() {
 		writefln("  Files:\n%-(    %s\n%)\n", program.allFiles());
 		writefln("%-(  %s\n%)", program.addressInfo.map!(a => "0x%x => %s@%s".format(a.address, program.fileFromIndex(a.fileIndex), a.line)));
 	}
+}
 
+void printSymbolTables(ELF elf) {
 	writeln();
 	writeln("Symbol table sections contents:");
 
