@@ -3,14 +3,13 @@
 //    (See accompanying file LICENSE_1_0.txt or copy at
 //          http://www.boost.org/LICENSE_1_0.txt)
 
-module elf.sections.debugline64;
+module elf.sections.debugline.debugline32;
 
-align(1) struct LineProgramHeader64L {
+align(1) struct LineProgramHeader32L {
 align(1):
-	uint unitLength_;
-	ulong unitLength;
+	uint unitLength;
 	ushort dwarfVersion;
-	ulong headerLength;
+	uint headerLength;
 	ubyte minimumInstructionLength;
 	bool defaultIsStatement;
 	byte lineBase;

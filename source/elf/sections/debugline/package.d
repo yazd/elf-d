@@ -12,7 +12,7 @@ import std.range;
 import std.conv : to;
 import elf, elf.meta;
 
-private import elf.sections.debugline32, elf.sections.debugline64;
+private import elf.sections.debugline.debugline32, elf.sections.debugline.debugline64;
 
 alias enforce = enforceEx!ELFException;
 
