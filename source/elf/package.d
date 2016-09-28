@@ -30,6 +30,7 @@ abstract class ELF {
 
 	static ELF fromFile(MmFile file) {
 		enforce(file.length > 16);
+		enforce(file[0 .. 4] == ['\x7f', 'E', 'L', 'F']);
 		bool is32Bit = (file[4] == 1);
 		bool is64Bit = (file[4] == 2);
 
