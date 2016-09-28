@@ -43,11 +43,6 @@ abstract class ELF {
 		}
 	}
 
-	private void checkValidity() {
-		enforce(m_file.length > 16);
-		enforce(m_file[0 .. 4] == ['\x7f', 'E', 'L', 'F']);
-	}
-
 	@property ELFHeader header();
 	ELFSection buildSection(ubyte[] section);
 
