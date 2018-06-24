@@ -9,7 +9,11 @@ import std.exception;
 import std.conv : to;
 import elf, elf.low, elf.low32, elf.low64, elf.meta;
 
-alias enforce = enforceEx!ELFException;
+static if (__VERSION__ >= 2079)
+	alias enforce = enforce!ELFException;
+else
+	alias enforce = enforceEx!ELFException;
+
 
 struct SymbolTable {
 	private SymbolTableImpl m_impl;

@@ -12,7 +12,10 @@ import std.range;
 import std.conv : to;
 import elf, elf.meta;
 
-alias enforce = enforceEx!ELFException;
+static if (__VERSION__ >= 2079)
+	alias enforce = enforce!ELFException;
+else
+	alias enforce = enforceEx!ELFException;
 
 alias ULEB128 = ulong;
 alias LEB128 = long;

@@ -9,7 +9,10 @@ import std.exception;
 import std.conv : to;
 import elf;
 
-alias enforce = enforceEx!ELFException;
+static if (__VERSION__ >= 2079)
+	alias enforce = enforce!ELFException;
+else
+	alias enforce = enforceEx!ELFException;
 
 struct StringTable {
 	private ELFSection m_section;
