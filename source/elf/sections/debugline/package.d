@@ -14,7 +14,10 @@ import elf, elf.meta;
 
 private import elf.sections.debugline.debugline32, elf.sections.debugline.debugline64;
 
-alias enforce = enforceEx!ELFException;
+static if (__VERSION__ >= 2079)
+	alias enforce = enforce!ELFException;
+else
+	alias enforce = enforceEx!ELFException;
 
 struct DebugLine {
 	private LineProgram[] m_lps;

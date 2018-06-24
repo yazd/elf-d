@@ -14,7 +14,7 @@ import std.exception;
 import std.conv : to;
 import std.typecons : Nullable;
 
-alias enforce = enforceEx!ELFException;
+alias enforce = enforce!ELFException;
 
 abstract class ELF {
 	MmFile m_file;
