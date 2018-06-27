@@ -14,7 +14,10 @@ import std.exception;
 import std.conv : to;
 import std.typecons : Nullable;
 
-alias enforce = enforce!ELFException;
+static if (__VERSION__ >= 2079)
+	alias enforce = enforce!ELFException;
+else
+	alias enforce = enforceEx!ELFException;
 
 abstract class ELF {
 	MmFile m_file;
