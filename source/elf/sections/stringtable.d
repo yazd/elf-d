@@ -10,9 +10,9 @@ import std.conv : to;
 import elf;
 
 static if (__VERSION__ >= 2079)
-	alias enforce = enforce!ELFException;
+	alias elfEnforce = enforce!ELFException;
 else
-	alias enforce = enforceEx!ELFException;
+	alias elfEnforce = enforceEx!ELFException;
 
 struct StringTable {
 	private ELFSection m_section;
@@ -24,9 +24,9 @@ struct StringTable {
 	string getStringAt(size_t index) {
 		import std.algorithm: countUntil;
 
-		enforce(index < m_section.size);
+		elfEnforce(index < m_section.size);
 		ptrdiff_t len = m_section.contents[index .. $].countUntil('\0');
-		enforce(len >= 0);
+		elfEnforce(len >= 0);
 
 		return cast(string) m_section.contents[index .. index + len];
 	}
@@ -39,9 +39,9 @@ struct StringTable {
 			@property bool empty() { return m_currentIndex >= m_section.size; }
 
 			@property string front() {
-				enforce(!empty, "out of bounds exception");
+				elfEnforce(!empty, "out of bounds exception");
 				ptrdiff_t len = frontLength();
-				enforce(len >= 0, "invalid data");
+				elfEnforce(len >= 0, "invalid data");
 				return cast(string) m_section.contents[m_currentIndex .. m_currentIndex + len];
 			}
 
@@ -53,7 +53,7 @@ struct StringTable {
 			}
 
 			void popFront() {
-				enforce(!empty, "out of bounds exception");
+				elfEnforce(!empty, "out of bounds exception");
 				this.m_currentIndex += frontLength() + 1;
 			}
 

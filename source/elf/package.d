@@ -15,9 +15,9 @@ import std.conv : to;
 import std.typecons : Nullable;
 
 static if (__VERSION__ >= 2079)
-	alias enforce = enforce!ELFException;
+	alias elfEnforce = enforce!ELFException;
 else
-	alias enforce = enforceEx!ELFException;
+	alias elfEnforce = enforceEx!ELFException;
 
 abstract class ELF {
 	MmFile m_file;
@@ -32,8 +32,8 @@ abstract class ELF {
 	}
 
 	static ELF fromFile(MmFile file) {
-		enforce(file.length > 16);
-		enforce(file[0 .. 4] == ['\x7f', 'E', 'L', 'F']);
+		elfEnforce(file.length > 16);
+		elfEnforce(file[0 .. 4] == ['\x7f', 'E', 'L', 'F']);
 		bool is32Bit = (file[4] == 1);
 		bool is64Bit = (file[4] == 2);
 
@@ -60,12 +60,12 @@ abstract class ELF {
 			@property size_t length() { return m_elf.header.numberOfSectionHeaderEntries - m_currentIndex; }
 
 			@property ELFSection front() {
-				enforce(!empty, "out of bounds exception");
+				elfEnforce(!empty, "out of bounds exception");
 				return this[m_currentIndex];
 			}
 
 			void popFront() {
-				enforce(!empty, "out of bounds exception");
+				elfEnforce(!empty, "out of bounds exception");
 				this.m_currentIndex++;
 			}
 
@@ -74,7 +74,7 @@ abstract class ELF {
 			}
 
 			ELFSection opIndex(size_t index) {
-				enforce(index < m_elf.header.numberOfSectionHeaderEntries, "out of bounds exception");
+				elfEnforce(index < m_elf.header.numberOfSectionHeaderEntries, "out of bounds exception");
 				auto sectionStart = m_elf.header.sectionHeaderOffset + index * m_elf.header.sizeOfSectionHeaderEntry;
 				auto section = m_elf.m_file[sectionStart .. sectionStart + m_elf.header.sizeOfSectionHeaderEntry];
 				return this.m_elf.buildSection(cast(ubyte[]) section);
@@ -118,7 +118,7 @@ final class ELF64 : ELF {
 	}
 
 	override ELFSection64 buildSection(ubyte[] sectionData) {
-		enforce(sectionData.length == ELFSection64L.sizeof);
+		elfEnforce(sectionData.length == ELFSection64L.sizeof);
 		ELFSection64L sectionRep = *(cast(ELFSection64L*) sectionData.ptr);
 		ELFSection64 section = new ELFSection64(this, sectionRep);
 		section.m_elf = this;
@@ -141,7 +141,7 @@ final class ELF32 : ELF {
 	}
 
 	override ELFSection32 buildSection(ubyte[] sectionData) {
-		enforce(sectionData.length == ELFSection32L.sizeof);
+		elfEnforce(sectionData.length == ELFSection32L.sizeof);
 		ELFSection32L sectionRep = *(cast(ELFSection32L*) sectionData.ptr);
 		ELFSection32 section = new ELFSection32(this, sectionRep);
 		return section;
