@@ -7,15 +7,15 @@ module elf.sections.debugabbrev;
 
 // this implementation follows the DWARF v3 documentation
 
-import std.exception;
+static import std.exception;
 import std.range;
 import std.conv : to;
 import elf, elf.meta;
 
 static if (__VERSION__ >= 2079)
-	alias enforce = enforce!ELFException;
+	private alias enforce = std.exception.enforce!ELFException;
 else
-	alias enforce = enforceEx!ELFException;
+	private alias enforce = std.exception.enforceEx!ELFException;
 
 alias ULEB128 = ulong;
 alias LEB128 = long;
