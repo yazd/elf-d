@@ -7,7 +7,7 @@ module elf.sections.debugline;
 
 // this implementation follows the DWARF v3 documentation
 
-import std.exception;
+static import std.exception;
 import std.range;
 import std.conv : to;
 import elf, elf.meta;
@@ -15,9 +15,9 @@ import elf, elf.meta;
 private import elf.sections.debugline.debugline32, elf.sections.debugline.debugline64;
 
 static if (__VERSION__ >= 2079)
-	alias enforce = enforce!ELFException;
+	private alias enforce = std.exception.enforce!ELFException;
 else
-	alias enforce = enforceEx!ELFException;
+	private alias enforce = std.exception.enforceEx!ELFException;
 
 struct DebugLine {
 	private LineProgram[] m_lps;

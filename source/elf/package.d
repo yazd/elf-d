@@ -10,14 +10,14 @@ public import elf.sections;
 import elf.low, elf.low32, elf.low64, elf.meta;
 
 import std.mmfile;
-import std.exception;
+static import std.exception;
 import std.conv : to;
 import std.typecons : Nullable;
 
 static if (__VERSION__ >= 2079)
-	alias enforce = enforce!ELFException;
+	private alias enforce = std.exception.enforce!ELFException;
 else
-	alias enforce = enforceEx!ELFException;
+	private alias enforce = std.exception.enforceEx!ELFException;
 
 abstract class ELF {
 	MmFile m_file;
@@ -236,7 +236,7 @@ final class ELFSection64 : ELFSection {
 	}
 }
 
-class ELFException : Exception {
+class ELFException : std.exception.Exception {
 	this(string msg, string file = __FILE__, size_t line = __LINE__) {
 		super(msg, file, line);
 	}
