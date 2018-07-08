@@ -10,9 +10,9 @@ import std.conv : to;
 import elf, elf.low, elf.low32, elf.low64, elf.meta;
 
 static if (__VERSION__ >= 2079)
-	alias enforce = enforce!ELFException;
+	alias elfEnforce = enforce!ELFException;
 else
-	alias enforce = enforceEx!ELFException;
+	alias elfEnforce = enforceEx!ELFException;
 
 
 struct SymbolTable {
@@ -38,12 +38,12 @@ struct SymbolTable {
 			@property bool empty() { return m_currentIndex >= m_impl.length; }
 
 			@property ELFSymbol front() {
-				enforce(!empty, "out of bounds exception");
+				elfEnforce(!empty, "out of bounds exception");
 				return m_impl.getSymbolAt(m_currentIndex);
 			}
 
 			void popFront() {
-				enforce(!empty, "out of bounds exception");
+				elfEnforce(!empty, "out of bounds exception");
 				this.m_currentIndex++;
 			}
 
@@ -69,7 +69,7 @@ private class SymbolTable32Impl : SymbolTableImpl {
 	private ELFSection32 m_section;
 
 	this(ELFSection section) {
-		enforce(section.bits == 32);
+		elfEnforce(section.bits == 32);
 		this(cast(ELFSection32) section);
 	}
 
@@ -78,7 +78,7 @@ private class SymbolTable32Impl : SymbolTableImpl {
 	}
 
 	ELFSymbol getSymbolAt(size_t index) {
-		enforce(index * ELFSymbol32L.sizeof < m_section.size);
+		elfEnforce(index * ELFSymbol32L.sizeof < m_section.size);
 		ELFSymbol32L symbol;
 		symbol = *cast(ELFSymbol32L*) m_section.contents[index * ELFSymbol32L.sizeof .. (index + 1) * ELFSymbol32L.sizeof].ptr;
 		return new ELFSymbol32(m_section, symbol);
@@ -93,7 +93,7 @@ private class SymbolTable64Impl : SymbolTableImpl {
 	private ELFSection64 m_section;
 
 	this(ELFSection section) {
-		enforce(section.bits == 64);
+		elfEnforce(section.bits == 64);
 		this(cast(ELFSection64) section);
 	}
 
@@ -102,7 +102,7 @@ private class SymbolTable64Impl : SymbolTableImpl {
 	}
 
 	ELFSymbol getSymbolAt(size_t index) {
-		enforce(index * ELFSymbol64L.sizeof < m_section.size);
+		elfEnforce(index * ELFSymbol64L.sizeof < m_section.size);
 		ELFSymbol64L symbol;
 		symbol = *cast(ELFSymbol64L*) m_section.contents[index * ELFSymbol64L.sizeof .. (index + 1) * ELFSymbol64L.sizeof].ptr;
 		return new ELFSymbol64(m_section, symbol);

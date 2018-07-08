@@ -13,9 +13,9 @@ import std.conv : to;
 import elf, elf.meta;
 
 static if (__VERSION__ >= 2079)
-	alias enforce = enforce!ELFException;
+	alias elfEnforce = enforce!ELFException;
 else
-	alias enforce = enforceEx!ELFException;
+	alias elfEnforce = enforceEx!ELFException;
 
 alias ULEB128 = ulong;
 alias LEB128 = long;
