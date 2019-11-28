@@ -55,7 +55,7 @@ void printDebugAbbrev(ELF elf) {
 	writeln("'.debug_abbrev' section contents:");
 
 	// ELF .debug_abbrev information
-	ELFSection dlSection = elf.getSection(".debug_abbrev");
+	ELFSection dlSection = elf.getSection(".debug_abbrev").get;
 
 	auto da = DebugAbbrev(dlSection);
 	foreach (tag; da.tags) {
@@ -75,7 +75,7 @@ void printDebugLine(ELF elf) {
 	writeln("'.debug_line' section contents:");
 
 	// ELF .debug_line information
-	ELFSection dlSection = elf.getSection(".debug_line");
+	ELFSection dlSection = elf.getSection(".debug_line").get;
 
 	auto dl = DebugLine(dlSection);
 	foreach (program; dl.programs) {
@@ -89,7 +89,7 @@ void printSymbolTables(ELF elf) {
 	writeln("Symbol table sections contents:");
 
 	foreach (section; only(".symtab", ".dynsym")) {
-		ELFSection s = elf.getSection(section);
+		ELFSection s = elf.getSection(section).get;
 		writeln("  Symbol table ", section, " contains: ", SymbolTable(s).symbols().walkLength());
 
 		writefln("%-(    %s\n%)", SymbolTable(s).symbols().map!(s => "%s\t%s\t%s".format(s.binding, s.type, s.name)));
